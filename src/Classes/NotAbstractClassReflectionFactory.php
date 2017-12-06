@@ -4,9 +4,9 @@ namespace Ellipse\Resolvable\Classes;
 
 use ReflectionClass;
 
-use Ellipse\Resolvable\Classes\Exceptions\ClassNotInstantiableException;
+use Ellipse\Resolvable\Classes\Exceptions\ClassIsAbstractException;
 
-class InstantiableClassReflectionFactory implements ClassReflectionFactoryInterface
+class NotAbstractClassReflectionFactory implements ClassReflectionFactoryInterface
 {
     /**
      * The delegate.
@@ -32,12 +32,12 @@ class InstantiableClassReflectionFactory implements ClassReflectionFactoryInterf
     {
         $reflection = ($this->delegate)($class);
 
-        if ($reflection->isInstantiable()) {
+        if (! $reflection->isAbstract()) {
 
             return $reflection;
 
         }
 
-        throw new ClassNotInstantiableException($class);
+        throw new ClassIsAbstractException($class);
     }
 }

@@ -6,11 +6,11 @@ use RuntimeException;
 
 use Ellipse\Resolvable\Exceptions\ResolvingExceptionInterface;
 
-class ClassNotInstantiableException extends RuntimeException implements ResolvingExceptionInterface
+class ClassIsAbstractException extends RuntimeException implements ResolvingExceptionInterface
 {
     public function __construct(string $class)
     {
-        $msg = "The class '%s' is not instantiable (interface or abstract).";
+        $msg = "The class '%s' is not instantiable (abstract class).";
 
         parent::__construct(sprintf($msg, $class));
     }

@@ -2,7 +2,8 @@
 
 namespace Ellipse\Resolvable;
 
-use Ellipse\Resolvable\Classes\InstantiableClassReflectionFactory;
+use Ellipse\Resolvable\Classes\NotInterfaceReflectionFactory;
+use Ellipse\Resolvable\Classes\NotAbstractClassReflectionFactory;
 use Ellipse\Resolvable\Classes\ExistingClassReflectionFactory;
 
 class ResolvableClassFactory
@@ -19,8 +20,10 @@ class ResolvableClassFactory
      */
     public function __construct()
     {
-        $this->delegate = new InstantiableClassReflectionFactory(
-            new ExistingClassReflectionFactory
+        $this->delegate = new NotInterfaceReflectionFactory(
+            new NotAbstractClassReflectionFactory(
+                new ExistingClassReflectionFactory
+            )
         );
     }
 

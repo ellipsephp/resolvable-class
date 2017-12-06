@@ -3,19 +3,20 @@
 use function Eloquent\Phony\Kahlan\mock;
 
 use Psr\Container\ContainerInterface;
+use Psr\Container\ContainerExceptionInterface;
 
 use Ellipse\Resolvable\ResolvableValue;
 use Ellipse\Resolvable\ResolvableClass;
 use Ellipse\Resolvable\ResolvableClassFactory;
-use Ellipse\Resolvable\Classes\InstantiableClassReflectionFactory;
+use Ellipse\Resolvable\Classes\NotInterfaceReflectionFactory;
 
 describe('ResolvableClassFactory', function () {
 
     beforeEach(function () {
 
-        $this->delegate = mock(InstantiableClassReflectionFactory::class);
+        $this->delegate = mock(NotInterfaceReflectionFactory::class);
 
-        allow(InstantiableClassReflectionFactory::class)->toBe($this->delegate->get());
+        allow(NotInterfaceReflectionFactory::class)->toBe($this->delegate->get());
 
         $this->factory = new ResolvableClassFactory;
 
