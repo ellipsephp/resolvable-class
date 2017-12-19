@@ -3,18 +3,34 @@
 use function Eloquent\Phony\Kahlan\mock;
 
 use Ellipse\Resolvable\Exceptions\ResolvingExceptionInterface;
-use Ellipse\Resolvable\Exceptions\ClassResolvingException;
 use Ellipse\Resolvable\Exceptions\ParameterResolvingException;
+use Ellipse\Resolvable\Exceptions\ClassResolvingException;
 
 describe('ClassResolvingException', function () {
 
+    beforeEach(function () {
+
+        $this->previous = mock(ParameterResolvingException::class)->get();
+
+        $this->exception = new ClassResolvingException('class', $this->previous);
+
+    });
+
     it('should implement ResolvingExceptionInterface', function () {
 
-        $delegate = mock(ParameterResolvingException::class)->get();
+        expect($this->exception)->toBeAnInstanceOf(ResolvingExceptionInterface::class);
 
-        $test = new ClassResolvingException('class', $delegate);
+    });
 
-        expect($test)->toBeAnInstanceOf(ResolvingExceptionInterface::class);
+    describe('->getPrevious()', function () {
+
+        it('should return the previous exception', function () {
+
+            $test = $this->exception->getPrevious();
+
+            expect($test)->toBe($this->previous);
+
+        });
 
     });
 

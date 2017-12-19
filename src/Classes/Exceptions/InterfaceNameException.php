@@ -10,8 +10,10 @@ class InterfaceNameException extends RuntimeException implements ResolvingExcept
 {
     public function __construct(string $class)
     {
-        $msg = "The string '%s' is an interface name.";
+        $template = "The name '%s' is an interface name";
 
-        parent::__construct(sprintf($msg, $class));
+        $msg = sprintf($template, $class);
+
+        parent::__construct($msg);
     }
 }

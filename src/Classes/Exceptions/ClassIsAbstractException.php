@@ -10,8 +10,10 @@ class ClassIsAbstractException extends RuntimeException implements ResolvingExce
 {
     public function __construct(string $class)
     {
-        $msg = "The class '%s' is not instantiable (abstract class).";
+        $template = "The class '%s' is not instantiable (abstract class)";
 
-        parent::__construct(sprintf($msg, $class));
+        $msg = sprintf($template, $class);
+
+        parent::__construct($msg);
     }
 }

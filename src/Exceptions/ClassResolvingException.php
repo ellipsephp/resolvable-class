@@ -6,10 +6,12 @@ use RuntimeException;
 
 class ClassResolvingException extends RuntimeException implements ResolvingExceptionInterface
 {
-    public function __construct(string $class, ParameterResolvingException $delegate)
+    public function __construct(string $class, ParameterResolvingException $previous)
     {
-        $msg = "The class '%s' instantiation failed because $%s value can't be resolved:\n-%s";
+        $template = "The instantiation of class '%s' failed";
 
-        parent::__construct(sprintf($msg, $class, $delegate->parameter()->getName(), $delegate->getMessage()));
+        $msg = sprintf($template, $class);
+
+        parent::__construct($msg, 0, $previous);
     }
 }

@@ -10,8 +10,10 @@ class ClassNotFoundException extends RuntimeException implements ResolvingExcept
 {
     public function __construct(string $class)
     {
-        $msg = "Class '%s' not found.";
+        $template = "Class '%s' not found";
 
-        parent::__construct(sprintf($msg, $class));
+        $msg = sprintf($template, $class);
+
+        parent::__construct($msg);
     }
 }

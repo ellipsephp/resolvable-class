@@ -3,20 +3,20 @@
 use function Eloquent\Phony\Kahlan\mock;
 
 use Psr\Container\ContainerInterface;
-use Psr\Container\ContainerExceptionInterface;
 
 use Ellipse\Resolvable\ResolvableValue;
 use Ellipse\Resolvable\ResolvableClass;
 use Ellipse\Resolvable\ResolvableClassFactory;
-use Ellipse\Resolvable\Classes\NotInterfaceReflectionFactory;
+use Ellipse\Resolvable\Classes\NotAbstractClassReflectionFactory;
+use Ellipse\Resolvable\Classes\Exceptions\InterfaceNameException;
 
 describe('ResolvableClassFactory', function () {
 
     beforeEach(function () {
 
-        $this->delegate = mock(NotInterfaceReflectionFactory::class);
+        $this->delegate = mock(NotAbstractClassReflectionFactory::class);
 
-        allow(NotInterfaceReflectionFactory::class)->toBe($this->delegate->get());
+        allow(NotAbstractClassReflectionFactory::class)->toBe($this->delegate->get());
 
         $this->factory = new ResolvableClassFactory;
 
@@ -100,27 +100,54 @@ describe('ResolvableClassFactory', function () {
 
         class TestClass2 {}
 
+        interface TestInterface {
+
+            public function test();
+
+        }
+
     });
 
     describe('->__invoke()->value()', function () {
+
+        beforeEach(function () {
+
+            $this->container = mock(ContainerInterface::class);
+
+        });
 
         it('should execute the given callable', function () {
 
             $instance = new TestClass2;
 
-            $container = mock(ContainerInterface::class);
             $placeholders = [2, 3];
 
-            $container->get->with(TestClass2::class)->returns($instance);
+            $this->container->get->with(TestClass2::class)->returns($instance);
 
             $factory = new ResolvableClassFactory;
 
-            $test = $factory(TestClass::class)->value($container->get(), $placeholders);
+            $test = $factory(TestClass::class)->value($this->container->get(), $placeholders);
 
             expect($test->parameters[0])->toBe($instance);
             expect($test->parameters[1])->toEqual(2);
             expect($test->parameters[2])->toEqual(3);
             expect($test->parameters[3])->toEqual(4);
+
+        });
+
+        it('should throw InterfaceNameException before ClassIsAbstractException', function () {
+
+            $factory = new ResolvableClassFactory;
+
+            $test = function () use ($factory) {
+
+                $factory(TestInterface::class)->value($this->container->get(), []);
+
+            };
+
+            $exception = mock(InterfaceNameException::class)->get();
+
+            expect($test)->toThrow();
 
         });
 
