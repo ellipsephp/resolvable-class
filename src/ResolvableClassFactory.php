@@ -2,9 +2,10 @@
 
 namespace Ellipse\Resolvable;
 
-use Ellipse\Resolvable\Classes\NotAbstractClassReflectionFactory;
-use Ellipse\Resolvable\Classes\NotInterfaceReflectionFactory;
+use Ellipse\Resolvable\Classes\ClassReflectionFactory;
 use Ellipse\Resolvable\Classes\ExistingClassReflectionFactory;
+use Ellipse\Resolvable\Classes\NotInterfaceReflectionFactory;
+use Ellipse\Resolvable\Classes\NotAbstractClassReflectionFactory;
 
 class ResolvableClassFactory extends AbstractResolvableClassFactory
 {
@@ -15,7 +16,9 @@ class ResolvableClassFactory extends AbstractResolvableClassFactory
     {
         parent::__construct(new NotAbstractClassReflectionFactory(
             new NotInterfaceReflectionFactory(
-                new ExistingClassReflectionFactory
+                new ExistingClassReflectionFactory(
+                    new ClassReflectionFactory
+                )
             )
         ));
     }

@@ -10,13 +10,30 @@ use Ellipse\Resolvable\Classes\Exceptions\ClassNotFoundException;
 class ExistingClassReflectionFactory implements ClassReflectionFactoryInterface
 {
     /**
+     * The delegate.
+     *
+     * @var \Ellipse\Resolvable\Classes\ClassReflectionFactoryInterface
+     */
+    private $delegate;
+
+    /**
+     * Set up an existing class resflection factory with the given delegate.
+     *
+     * @param \Ellipse\Resolvable\Classes\ClassReflectionFactoryInterface $delegate
+     */
+    public function __construct(ClassReflectionFactoryInterface $delegate)
+    {
+        $this->delegate = $delegate;
+    }
+
+    /**
      * @inheritdoc
      */
     public function __invoke(string $class): ReflectionClass
     {
         try {
 
-            return new ReflectionClass($class);
+            return ($this->delegate)($class);
 
         }
 

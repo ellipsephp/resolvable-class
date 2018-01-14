@@ -1,5 +1,7 @@
 <?php
 
+use function Eloquent\Phony\Kahlan\mock;
+
 use Ellipse\Resolvable\Classes\ExistingClassReflectionFactory;
 use Ellipse\Resolvable\Classes\ClassReflectionFactoryInterface;
 use Ellipse\Resolvable\Classes\Exceptions\ClassNotFoundException;
@@ -8,7 +10,9 @@ describe('ExistingClassReflectionFactory', function () {
 
     beforeEach(function () {
 
-        $this->factory = new ExistingClassReflectionFactory;
+        $this->delegate = mock(ClassReflectionFactoryInterface::class);
+
+        $this->factory = new ExistingClassReflectionFactory($this->delegate->get());
 
     });
 
@@ -20,13 +24,15 @@ describe('ExistingClassReflectionFactory', function () {
 
     describe('->__invoke()', function () {
 
-        context('when the given string is an existing class name', function () {
+        context('when the delegate does not throw a ReflectionException', function () {
 
-            it('should return a new ReflectionClass', function () {
+            it('should proxy the delegate', function () {
 
-                $test = ($this->factory)(StdClass::class);
+                $reflection = mock(ReflectionClass::class)->get();
 
-                $reflection = new ReflectionClass(StdClass::class);
+                $this->delegate->__invoke->with('class')->returns($reflection);
+
+                $test = ($this->factory)('class');
 
                 expect($test)->toEqual($reflection);
 
@@ -34,17 +40,21 @@ describe('ExistingClassReflectionFactory', function () {
 
         });
 
-        context('when the given string is not an existing class name', function () {
+        context('when the delegate throws a ReflectionException', function () {
 
             it('should throw a ClassNotFoundException', function () {
 
+                $exception = mock(ReflectionException::class)->get();
+
+                $this->delegate->__invoke->with('class')->throws($exception);
+
                 $test = function () {
 
-                    ($this->factory)('test');
+                    ($this->factory)('class');
 
                 };
 
-                $exception = new ClassNotFoundException('test');
+                $exception = new ClassNotFoundException('class');
 
                 expect($test)->toThrow($exception);
 
