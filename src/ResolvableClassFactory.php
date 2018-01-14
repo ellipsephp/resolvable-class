@@ -6,46 +6,17 @@ use Ellipse\Resolvable\Classes\NotAbstractClassReflectionFactory;
 use Ellipse\Resolvable\Classes\NotInterfaceReflectionFactory;
 use Ellipse\Resolvable\Classes\ExistingClassReflectionFactory;
 
-class ResolvableClassFactory
+class ResolvableClassFactory extends AbstractResolvableClassFactory
 {
     /**
-     * The delegate.
-     *
-     * @var \Ellipse\Resolvable\Classes\ClassReflectionFactoryInterface
-     */
-    private $delegate;
-
-    /**
-     * Set up a resolvable class factory.
+     * Set up a resolvable class factory with a default reflection factory.
      */
     public function __construct()
     {
-        $this->delegate = new NotAbstractClassReflectionFactory(
+        parent::__construct(new NotAbstractClassReflectionFactory(
             new NotInterfaceReflectionFactory(
                 new ExistingClassReflectionFactory
             )
-        );
-    }
-
-    /**
-     * Return a new ResolvableValue from the given class name.
-     *
-     * @param string $class
-     * @return \Ellipse\Resolvable\ResolvableClass
-     */
-    public function __invoke(string $class): ResolvableClass
-    {
-        $reflection = ($this->delegate)($class);
-
-        $constructor = $reflection->getConstructor();
-
-        $factory = [$reflection, 'newInstance'];
-
-        $parameters = is_null($constructor) ? [] : $constructor->getParameters();
-
-        return new ResolvableClass(
-            $class,
-            new ResolvableValue($factory, $parameters)
-        );
+        ));
     }
 }

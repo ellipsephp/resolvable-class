@@ -20,7 +20,7 @@ describe('ExistingClassReflectionFactory', function () {
 
     describe('->__invoke()', function () {
 
-        context('when the given class name exists', function () {
+        context('when the given string is an existing class name', function () {
 
             it('should return a new ReflectionClass', function () {
 
@@ -34,17 +34,17 @@ describe('ExistingClassReflectionFactory', function () {
 
         });
 
-        context('when the given class name does not exist', function () {
+        context('when the given string is not an existing class name', function () {
 
             it('should throw a ClassNotFoundException', function () {
 
                 $test = function () {
 
-                    ($this->factory)('NotExisting');
+                    ($this->factory)('test');
 
                 };
 
-                $exception = new ClassNotFoundException('NotExisting');
+                $exception = new ClassNotFoundException('test');
 
                 expect($test)->toThrow($exception);
 
