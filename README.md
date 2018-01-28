@@ -38,13 +38,13 @@ namespace App;
 
 use Some\Psr11Container;
 
-use Ellipse\Resolvable\ResolvableClassFactory;
+use Ellipse\Resolvable\DefaultResolvableClassFactory;
 
 // Some Psr-11 container.
 $container = new Psr11Container;
 
 // Resolve SomeClass. $resolved value is an instance of SomeClass.
-$factory = new ResolvableClassFactory;
+$factory = new DefaultResolvableClassFactory;
 
 $resolved = $factory(SomeClass::class)->value($container, [2, 3]);
 ```

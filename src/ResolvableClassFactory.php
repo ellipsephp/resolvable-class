@@ -2,24 +2,46 @@
 
 namespace Ellipse\Resolvable;
 
-use Ellipse\Resolvable\Classes\ClassReflectionFactory;
-use Ellipse\Resolvable\Classes\ExistingClassReflectionFactory;
-use Ellipse\Resolvable\Classes\NotInterfaceReflectionFactory;
-use Ellipse\Resolvable\Classes\NotAbstractClassReflectionFactory;
+use Ellipse\Resolvable\Classes\ClassReflectionFactoryInterface;
 
-class ResolvableClassFactory extends AbstractResolvableClassFactory
+class ResolvableClassFactory implements ResolvableClassFactoryInterface
 {
     /**
-     * Set up a resolvable class factory with a default reflection factory.
+     * The reflection factory.
+     *
+     * @var \Ellipse\Resolvable\Classes\ClassReflectionFactoryInterface
      */
-    public function __construct()
+    private $reflection;
+
+    /**
+     * Set up a resolvable class factory with the given reflection factory.
+     *
+     * @param \Ellipse\Resolvable\Classes\ClassReflectionFactoryInterface $reflection
+     */
+    public function __construct(ClassReflectionFactoryInterface $reflection)
     {
-        parent::__construct(new NotAbstractClassReflectionFactory(
-            new NotInterfaceReflectionFactory(
-                new ExistingClassReflectionFactory(
-                    new ClassReflectionFactory
-                )
-            )
-        ));
+        $this->reflection = $reflection;
+    }
+
+    /**
+     * Return a new ResolvableValue from the given class name.
+     *
+     * @param string $class
+     * @return \Ellipse\Resolvable\ResolvableClass
+     */
+    public function __invoke(string $class): ResolvableClass
+    {
+        $reflection = ($this->reflection)($class);
+
+        $constructor = $reflection->getConstructor();
+
+        $factory = [$reflection, 'newInstance'];
+
+        $parameters = is_null($constructor) ? [] : $constructor->getParameters();
+
+        return new ResolvableClass(
+            $class,
+            new ResolvableValue($factory, $parameters)
+        );
     }
 }

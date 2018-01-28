@@ -4,100 +4,82 @@ use function Eloquent\Phony\Kahlan\mock;
 
 use Psr\Container\ContainerInterface;
 
+use Ellipse\Resolvable\ResolvableValue;
 use Ellipse\Resolvable\ResolvableClass;
+use Ellipse\Resolvable\ResolvableClassFactoryInterface;
 use Ellipse\Resolvable\ResolvableClassFactory;
-use Ellipse\Resolvable\AbstractResolvableClassFactory;
-use Ellipse\Resolvable\Classes\Exceptions\InterfaceNameException;
-use Ellipse\Resolvable\Classes\Exceptions\ClassIsAbstractException;
-use Ellipse\Resolvable\Classes\Exceptions\ClassNotFoundException;
+use Ellipse\Resolvable\Classes\ClassReflectionFactoryInterface;
 
 describe('ResolvableClassFactory', function () {
 
-    beforeAll(function () {
-
-        // The interface has a method because php reflection ->isAbstract() return
-        // true for interfaces with methods!
-
-        interface TestInterface { public function test(); }
-        abstract class AbstractTest {}
-
-    });
-
     beforeEach(function () {
 
-        $this->factory = new ResolvableClassFactory;
+        $this->delegate = mock(ClassReflectionFactoryInterface::class);
+
+        $this->factory = new ResolvableClassFactory($this->delegate->get());
 
     });
 
-    it('should extend AbstractResolvableClassFactory', function () {
+    it('should implement ResolvableClassFactoryInterface', function () {
 
-        expect($this->factory)->toBeAnInstanceOf(AbstractResolvableClassFactory::class);
+        expect($this->factory)->toBeAnInstanceOf(ResolvableClassFactoryInterface::class);
 
     });
 
     describe('->__invoke()', function () {
 
-        context('when the given string is an existing class name', function () {
+        beforeEach(function () {
 
-            it('should return a ResolvableClass', function () {
+            $this->reflection = mock(ReflectionClass::class);
 
-                $test = ($this->factory)(StdClass::class);
+            $this->delegate->__invoke->returns($this->reflection);
 
-                expect($test)->toBeAnInstanceOf(ResolvableClass::class);
+            $this->class = [$this->reflection->get(), 'newInstance'];
+
+        });
+
+        context('when the class has a constructor', function () {
+
+            it('should get an array of ReflectionParameter using the reflection class constructor ->getParameters() method', function () {
+
+                $constructor = mock(ReflectionMethod::class);
+
+                $parameters = [
+                    mock(ReflectionParameter::class)->get(),
+                    mock(ReflectionParameter::class)->get(),
+                ];
+
+                $this->reflection->getConstructor->returns($constructor);
+
+                $constructor->getParameters->returns($parameters);
+
+                $test = ($this->factory)('class');
+
+                $resolvable = new ResolvableClass(
+                    'class',
+                    new ResolvableValue($this->class, $parameters)
+                );
+
+                expect($test)->toEqual($resolvable);
 
             });
 
         });
 
-        context('when the given string is an interface name', function () {
+        context('when the class dont have a constructor', function () {
 
-            it('should throw a InterfaceNameException', function () {
+            it('should use an empty array of ReflectionParameter', function () {
 
-                $test = function () {
+                $this->reflection->getConstructor->returns(null);
 
-                    ($this->factory)(TestInterface::class);
+                $test = ($this->factory)('class');
 
-                };
+                $resolvable = new ResolvableClass(
+                    'class',
+                    new ResolvableValue($this->class, [])
+                );
 
-                $exception = new InterfaceNameException(TestInterface::class);
-
-                expect($test)->toThrow($exception);
-
-            });
-
-        });
-
-        context('when the given string is an abstract class name', function () {
-
-            it('should throw a ClassIsAbstractException', function () {
-
-                $test = function () {
-
-                    ($this->factory)(AbstractTest::class);
-
-                };
-
-                $exception = new ClassIsAbstractException(AbstractTest::class);
-
-                expect($test)->toThrow($exception);
-
-            });
-
-        });
-
-        context('when the given string is not an existing class name', function () {
-
-            it('should throw a ClassNotFoundException', function () {
-
-                $test = function () {
-
-                    ($this->factory)('test');
-
-                };
-
-                $exception = new ClassNotFoundException('test');
-
-                expect($test)->toThrow($exception);
+                expect($test)->toEqual($resolvable);
 
             });
 
