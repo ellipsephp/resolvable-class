@@ -2,7 +2,7 @@
 
 This package provides a resolvable class factory allowing to instantiate classes using a **[Psr-11 container](http://www.php-fig.org/psr/psr-11/)**.
 
-**Require** php >= 7.1
+**Require** php >= 7.0
 
 **Installation** `composer require ellipse/resolvable-class`
 
